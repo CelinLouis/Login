@@ -1,4 +1,3 @@
-from tokenize import Token
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,11 +6,26 @@ from rest_framework.generics import CreateAPIView
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
-from controller.serializers.login import UserSerializer
+from controller.serializers.login import UserSerializer, UserLoginSerializer,UserProfil
+from rest_framework.authtoken.views import Token
+from django.contrib.auth.models import User
+from rest_framework.authentication import TokenAuthentication
+
+
+class ProfileView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),
+            'auth': str(request.auth),
+        }
+        return Response(content)
 
 #sign up
 class CreateUserAPI(CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     model = get_user_model()
     serializer_class = UserSerializer
 
@@ -25,13 +39,16 @@ class CustomAuthToken(ObtainAuthToken):
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
         return Response({
-            'token': token.key
+            'token': token.key,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name
         })
 
 
 #logout
 class LogOutAPI(APIView):
-    
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
         try:
@@ -40,3 +57,11 @@ class LogOutAPI(APIView):
         except Token.DoesNotExist:
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserProfil(APIView):
+    permission_class = [IsAuthenticated]
+    def get(self, request):
+        user = User.objects.get(username=request.user)
+        user_data = UserProfil(user).data
+        return Response(user_data)

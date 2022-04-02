@@ -14,9 +14,33 @@ class UserSerializer(serializers.ModelSerializer):
             email = validated_data['email'],
             password = validated_data['password'],
         )
+        
+        return user
+
+    class Meta:
+        model = UserModel
+        fields = ('id','username','password','email',)
+
+
+class UserProfil(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserModel
+        fields = '__all__'
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+
+        user = UserModel.objects.create_user(
+            email = validated_data['email'],
+            password = validated_data['password'],
+        )
 
         return user
 
     class Meta:
         model = UserModel
-        fields = ('id','username','password','email')
+        fields = ('id','password','email')
