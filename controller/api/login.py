@@ -23,6 +23,7 @@ class ProfileView(APIView):
         }
         return Response(content)
 
+
 #sign up
 class CreateUserAPI(CreateAPIView):
     #permission_classes = [IsAuthenticated]
@@ -49,6 +50,7 @@ class CustomAuthToken(ObtainAuthToken):
 
 #logout
 class LogOutAPI(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
         try:
@@ -60,8 +62,8 @@ class LogOutAPI(APIView):
 
 
 class UserProfil(APIView):
-    permission_class = [IsAuthenticated]
+    #permission_class = [IsAuthenticated]
     def get(self, request):
         user = User.objects.get(username=request.user)
-        user_data = UserProfil(user).data
+        user_data = UserSerializer(user).data
         return Response(user_data)
