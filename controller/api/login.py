@@ -6,7 +6,7 @@ from rest_framework.generics import CreateAPIView
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
-from controller.serializers.login import UserSerializer, UserLoginSerializer,UserProfil
+from controller.serializers.login import UserSerializer, UserLoginSerializer,UserSerializerProfil
 from rest_framework.authtoken.views import Token
 from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
@@ -65,5 +65,5 @@ class UserProfil(APIView):
     #permission_class = [IsAuthenticated]
     def get(self, request):
         user = User.objects.get(username=request.user)
-        user_data = UserSerializer(user).data
+        user_data = UserSerializerProfil(user).data
         return Response(user_data)
