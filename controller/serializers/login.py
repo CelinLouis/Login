@@ -44,3 +44,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ('id','password','email')
+
+
+class UserSerializerUpdate(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserModel
+        fields = ('id','email','first_name','last_name','username')

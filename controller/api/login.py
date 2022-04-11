@@ -1,3 +1,4 @@
+from numpy import delete
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework.generics import CreateAPIView
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
-from controller.serializers.login import UserSerializer, UserLoginSerializer,UserSerializerProfil
+from controller.serializers.login import UserSerializer, UserSerializerUpdate,UserSerializerProfil
 from rest_framework.authtoken.views import Token
 from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
@@ -62,8 +63,25 @@ class LogOutAPI(APIView):
 
 
 class UserProfil(APIView):
-    #permission_class = [IsAuthenticated]
+    permission_class = [IsAuthenticated]
     def get(self, request):
         user = User.objects.get(username=request.user)
         user_data = UserSerializerProfil(user).data
         return Response(user_data)
+    
+
+    def put(self, request):
+        data = request.data
+        user = User.objects.get(username=request.user)
+        print("User",user)
+        serializer = UserSerializerUpdate(user, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response (serializer.data, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+    def delete(self, request):
+        user = User.objects.get(username=request.user)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
